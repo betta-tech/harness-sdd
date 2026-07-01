@@ -8,8 +8,9 @@
 
 - [ ] Existen los 4 archivos base: `AGENTS.md`, `init.sh`, `feature_list.json`,
       `progress/current.md`.
-- [ ] Existen los 3 docs: `docs/architecture.md`, `docs/conventions.md`,
-      `docs/verification.md`.
+- [ ] Existen los 7 docs: `docs/architecture.md`, `docs/conventions.md`,
+      `docs/verification.md`, `docs/workflow.md`, `docs/gherkin.md`,
+      `docs/tdd.md`, `docs/mutation-testing.md`.
 - [ ] `./init.sh` termina con exit code 0.
 
 ## C2 — El estado es coherente

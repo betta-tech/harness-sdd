@@ -38,7 +38,7 @@ ok "Versión de Python compatible"
 echo ""
 echo "── 2. Verificando archivos base del arnés ──────────────"
 
-for f in AGENTS.md feature_list.json progress/current.md docs/architecture.md docs/conventions.md docs/verification.md docs/workflow.md tools/mutate.py CHECKPOINTS.md; do
+for f in AGENTS.md feature_list.json progress/current.md docs/architecture.md docs/conventions.md docs/verification.md docs/workflow.md docs/gherkin.md docs/tdd.md docs/mutation-testing.md tools/mutate.py CHECKPOINTS.md; do
   if [ ! -f "$f" ]; then
     fail "Falta archivo base: $f"
     EXIT_CODE=1
