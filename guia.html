@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía Integral de harness-sdd — Multi-Agent Harness Engineering & EARS SDD</title>
+  <style>
+    :root {
+      --bg-primary: #0a0f1d;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --border-color: #374151;
+      --border-accent: #6366f1;
+      --text-primary: #e5e7eb;
+      --text-secondary: #9ca3af;
+      --text-heading: #f9fafb;
+      --accent-indigo: #818cf8;
+      --accent-purple: #c084fc;
+      --accent-emerald: #34d399;
+      --accent-amber: #fbbf24;
+      --accent-rose: #fb7185;
+      --accent-cyan: #38bdf8;
+      --code-bg: #030712;
+      --card-hover: rgba(99, 102, 241, 0.08);
+      --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      --sidebar-width: 300px;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --border-color: #e2e8f0;
+      --border-accent: #4f46e5;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-heading: #0f172a;
+      --accent-indigo: #4f46e5;
+      --accent-purple: #9333ea;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      --accent-cyan: #0284c7;
+      --code-bg: #f8fafc;
+      --card-hover: rgba(79, 70, 229, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    #sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.15rem;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-heading);
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem 0.5rem 2rem;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--border-accent);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      pointer-events: none;
+      font-size: 0.8rem;
+    }
+
+    .nav-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 0.75rem 0.5rem 0.25rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--accent-indigo);
+      background-color: var(--bg-tertiary);
+    }
+
+    .nav-link.active {
+      font-weight: 600;
+      border-left: 3px solid var(--accent-indigo);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .nav-link .badge-num {
+      margin-left: auto;
+      background-color: var(--bg-primary);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .theme-toggle {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Main Content Area */
+    #content {
+      flex: 1;
+      padding: 2.5rem 3.5rem;
+      max-width: 1200px;
+      overflow-y: auto;
+    }
+
+    /* Header Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(192, 132, 252, 0.08));
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-indigo);
+      border-radius: 12px;
+      padding: 2.2rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .tag-indigo { background: rgba(99, 102, 241, 0.2); color: var(--accent-indigo); border: 1px solid rgba(99, 102, 241, 0.4); }
+    .tag-purple { background: rgba(192, 132, 252, 0.2); color: var(--accent-purple); border: 1px solid rgba(192, 132, 252, 0.4); }
+    .tag-emerald { background: rgba(52, 211, 153, 0.2); color: var(--accent-emerald); border: 1px solid rgba(52, 211, 153, 0.4); }
+
+    .hero-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 860px;
+      line-height: 1.6;
+    }
+
+    /* Section Styles */
+    section {
+      margin-bottom: 3.5rem;
+      scroll-margin-top: 2rem;
+    }
+
+    h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-heading);
+      margin: 1.75rem 0 0.75rem;
+    }
+
+    h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-heading);
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+      font-size: 0.96rem;
+    }
+
+    /* Grid & Cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    .card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      transition: all 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: var(--border-accent);
+      background-color: var(--card-hover);
+      transform: translateY(-2px);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-body {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Subagent Role Card */
+    .agent-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .agent-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+    }
+
+    .agent-leader::before { background-color: var(--accent-indigo); }
+    .agent-author::before { background-color: var(--accent-purple); }
+    .agent-impl::before { background-color: var(--accent-emerald); }
+    .agent-rev::before { background-color: var(--accent-amber); }
+
+    .agent-role {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .agent-leader .agent-role { color: var(--accent-indigo); }
+    .agent-author .agent-role { color: var(--accent-purple); }
+    .agent-impl .agent-role { color: var(--accent-emerald); }
+    .agent-rev .agent-role { color: var(--accent-amber); }
+
+    .agent-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 0.5rem;
+    }
+
+    .agent-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .agent-rule {
+      font-size: 0.78rem;
+      background: var(--bg-tertiary);
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    /* Callouts */
+    .callout {
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      border-left: 4px solid;
+      background-color: var(--bg-secondary);
+      font-size: 0.92rem;
+    }
+
+    .callout-info { border-left-color: var(--accent-indigo); }
+    .callout-success { border-left-color: var(--accent-emerald); }
+    .callout-warning { border-left-color: var(--accent-amber); }
+    .callout-danger { border-left-color: var(--accent-rose); }
+
+    .callout-title {
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Code Blocks */
+    .code-container {
+      position: relative;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin: 1rem 0 1.5rem;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--bg-secondary);
+      padding: 0.4rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .copy-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      padding: 0.2rem 0.5rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-heading);
+      border-color: var(--accent-indigo);
+    }
+
+    pre {
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      color: #e5e7eb;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background-color: var(--bg-tertiary);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      color: var(--accent-indigo);
+    }
+
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+
+    /* Diagram Styles */
+    .state-pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .pipeline-node {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+
+    .pipeline-node.gate {
+      border: 2px dashed var(--accent-amber);
+      background: rgba(251, 191, 36, 0.08);
+      color: var(--accent-amber);
+    }
+
+    .pipeline-arrow {
+      color: var(--text-secondary);
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    /* Status Pills */
+    .pill {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .pill-pending { background: rgba(156, 163, 175, 0.2); color: #9ca3af; border: 1px solid #4b5563; }
+    .pill-spec_ready { background: rgba(192, 132, 252, 0.2); color: #c084fc; border: 1px solid #9333ea; }
+    .pill-in_progress { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid #4f46e5; }
+    .pill-done { background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid #059669; }
+    .pill-blocked { background: rgba(251, 113, 133, 0.2); color: #fb7185; border: 1px solid #e11d48; }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 1.25rem 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--bg-secondary);
+      color: var(--text-heading);
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: var(--card-hover);
+    }
+
+    /* Interactive Box */
+    .interactive-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.9rem;
+    }
+
+    .checklist-item:last-child {
+      border-bottom: none;
+    }
+
+    .checklist-item input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      cursor: pointer;
+      accent-color: var(--accent-emerald);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+      #sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      #content {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">H</div>
+      <div>
+        <div class="brand-title">harness-sdd</div>
+        <div class="brand-subtitle">Multi-Agent Harness Engineering</div>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" class="search-input" placeholder="Buscar concepto o regla..." onkeyup="filterContent()">
+    </div>
+
+    <div class="nav-sections">
+      <div class="nav-label">Navegación</div>
+      <a href="#manifesto" class="nav-link active"><span>📜</span> El Repositorio ES el Sistema</a>
+      <a href="#agents" class="nav-link"><span>👥</span> Orquestación Multi-Agente <span class="badge-num">4 Roles</span></a>
+      <a href="#sdd-flow" class="nav-link"><span>🔁</span> Flujo SDD & Puerta Humana</a>
+      <a href="#ears-spec" class="nav-link"><span>📐</span> EARS & Triada de Spec</a>
+      <a href="#state" class="nav-link"><span>💾</span> Memoria Viva (progress & features)</a>
+      <a href="#checkpoints" class="nav-link"><span>🎯</span> CHECKPOINTS.md (C1–C6)</a>
+      <a href="#architecture" class="nav-link"><span>🏛️</span> Arquitectura 3 Capas</a>
+      <a href="#init-sh" class="nav-link"><span>🛡️</span> init.sh & Verificación</a>
+      <a href="#tutorial" class="nav-link"><span>🚀</span> Tutorial: Implementar Feature</a>
+      <a href="#features-list" class="nav-link"><span>📋</span> Estado de Features (11)</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeIcon">☀️</span> Modo Claro
+      </button>
+      <button class="theme-toggle" onclick="window.print()">
+        🖨️ Imprimir
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="content">
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+      <div class="hero-tags">
+        <span class="tag tag-indigo">Harness Engineering</span>
+        <span class="tag tag-purple">Claude Code Multi-Agent</span>
+        <span class="tag tag-emerald">EARS Spec-Driven</span>
+      </div>
+      <h1 class="hero-title">harness-sdd — Guía de Harness Engineering</h1>
+      <p class="hero-desc">
+        Arnés de desarrollo multi-agente en Python. Demuestra cómo estructurar un repositorio 
+        para que agentes de IA (<code>leader</code>, <code>spec_author</code>, <code>implementer</code>, <code>reviewer</code>) 
+        trabajen de forma autónoma, colaborativa y verificable bajo el estándar <strong>Spec Driven Development (Kiro-style)</strong>.
+      </p>
+    </div>
+
+    <!-- Section 1: Manifesto -->
+    <section id="manifesto">
+      <h2><span>📜</span> 1. Filosofía: El Repositorio ES el Sistema</h2>
+      <p>
+        En el desarrollo tradicional asistido por IA, el contexto fluye por la ventana de chat: es volátil, sufre de pérdida 
+        de atención ("efecto teléfono descompuesto") y se borra al cerrar la sesión.
+      </p>
+      <p>
+        <strong>Harness Engineering</strong> invierte la premisa: <strong>el contexto no circula por chat, vive en disco y queda versionado en Git</strong>.
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">❌ Modelo Volátil (Chat)</div>
+          <div class="card-body">
+            <ul>
+              <li>El humano repite requisitos una y otra vez.</li>
+              <li>El agente olvida decisiones pasadas tras varias vueltas.</li>
+              <li>No hay evidencia ejecutable de si el cambio respeta la arquitectura.</li>
+              <li>Al cambiar de modelo o sesión, se pierde todo el historial.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">✅ Modelo Harness Engineering (Disco)</div>
+          <div class="card-body">
+            <ul>
+              <li><code>specs/&lt;feature&gt;/</code> guarda requerimientos inmutables en EARS.</li>
+              <li><code>progress/current.md</code> refleja la sesión viva al instante.</li>
+              <li><code>feature_list.json</code> define el alcance exacto y estado de cada feature.</li>
+              <li><code>CHECKPOINTS.md</code> y <code>init.sh</code> evalúan objetivamente el estado final.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">💡 La Aplicación Notes CLI es el Vehículo Didáctico</div>
+        El código de notas en Python (<code>src/storage.py</code>, <code>notes.py</code>, <code>cli.py</code>) es deliberadamente 
+        simple para que cualquier desarrollador o auditor pueda comprenderlo de un vistazo. 
+        Lo valioso no es <em>qué</em> hace el programa, sino <strong>cómo está arnesado</strong> para que la IA nunca se desvíe.
+      </div>
+    </section>
+
+    <!-- Section 2: Agents -->
+    <section id="agents">
+      <h2><span>👥</span> 2. El Equipo Multi-Agente (.claude/agents/)</h2>
+      <p>
+        El arnés divide las responsabilidades en <strong>4 subagentes especializados</strong>. 
+        Ningún agente tiene permiso para hacer el trabajo de otro:
+      </p>
+
+      <div class="grid-4">
+        
+        <!-- Leader -->
+        <div class="agent-card agent-leader">
+          <div class="agent-role">Orquestador</div>
+          <div class="agent-name">leader</div>
+          <div class="agent-desc">
+            Recibe la tarea del usuario, revisa <code>feature_list.json</code> y lanza los subagentes adecuados.
+          </div>
+          <div class="agent-rule">
+            <strong>Regla dura:</strong> NUNCA escribe código ni tests. Se detiene ante la puerta humana.
+          </div>
+        </div>
+
+        <!-- Spec Author -->
+        <div class="agent-card agent-author">
+          <div class="agent-role">Analista / Diseñador</div>
+          <div class="agent-name">spec_author</div>
+          <div class="agent-desc">
+            Toma una feature <code>pending</code> y redacta la triada en <code>specs/&lt;name&gt;/</code>.
+          </div>
+          <div class="agent-rule">
+            <strong>Regla dura:</strong> Solo cambia status a <code>spec_ready</code> y PARA. No toca <code>src/</code>.
+          </div>
+        </div>
+
+        <!-- Implementer -->
+        <div class="agent-card agent-impl">
+          <div class="agent-role">Artesano / Builder</div>
+          <div class="agent-name">implementer</div>
+          <div class="agent-desc">
+            Toma una feature <code>in_progress</code> ya aprobada y ejecuta las tareas de <code>tasks.md</code> una a una.
+          </div>
+          <div class="agent-rule">
+            <strong>Regla dura:</strong> Solo trabaja si el spec está aprobado. Escribe test antes de marcar <code>[x]</code>.
+          </div>
+        </div>
+
+        <!-- Reviewer -->
+        <div class="agent-card agent-rev">
+          <div class="agent-role">Auditor de Calidad</div>
+          <div class="agent-name">reviewer</div>
+          <div class="agent-desc">
+            Audita el código contra <code>docs/</code>, <code>specs/</code> y <code>CHECKPOINTS.md</code>.
+          </div>
+          <div class="agent-rule">
+            <strong>Regla dura:</strong> Emite <code>APPROVED</code> o <code>CHANGES_REQUESTED</code>. No edita código.
+          </div>
+        </div>
+
+      </div>
+
+      <div class="table-container" style="margin-top: 1.5rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Subagente</th>
+              <th>Entrada Principal</th>
+              <th>Archivos que Escribe</th>
+              <th>Herramientas Permitidas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>leader</code></td>
+              <td>Prompt de usuario, <code>feature_list.json</code></td>
+              <td><code>progress/current.md</code>, <code>progress/history.md</code>, <code>feature_list.json</code></td>
+              <td>Read, Glob, Grep, Bash, Agent</td>
+            </tr>
+            <tr>
+              <td><code>spec_author</code></td>
+              <td><code>feature_list.json</code> (feature pending)</td>
+              <td><code>specs/&lt;name&gt;/{requirements,design,tasks}.md</code></td>
+              <td>Read, Write, Edit, Glob, Grep, Bash</td>
+            </tr>
+            <tr>
+              <td><code>implementer</code></td>
+              <td><code>specs/&lt;name&gt;/</code> (aprobado)</td>
+              <td><code>src/*.py</code>, <code>tests/*.py</code>, <code>progress/impl_&lt;name&gt;.md</code></td>
+              <td>Read, Write, Edit, Glob, Grep, Bash</td>
+            </tr>
+            <tr>
+              <td><code>reviewer</code></td>
+              <td>Diff de Git, spec y <code>CHECKPOINTS.md</code></td>
+              <td><code>progress/review_&lt;name&gt;.md</code></td>
+              <td>Read, Glob, Grep, Bash</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 3: SDD Flow -->
+    <section id="sdd-flow">
+      <h2><span>🔁</span> 3. Flujo Spec-Driven Development (SDD) & Puerta Humana</h2>
+      <p>
+        El flujo SDD impide que la máquina gaste tokens o genere código inútil hasta que el humano certifique 
+        que el diseño resuelve el problema deseado.
+      </p>
+
+      <div class="state-pipeline">
+        <div class="pipeline-node"><span class="pill pill-pending">pending</span></div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-node" style="color: var(--accent-purple);">[spec_author]</div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-node"><span class="pill pill-spec_ready">spec_ready</span></div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-node gate">⏸ PUERTA HUMANA (Aprobación)</div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-node"><span class="pill pill-in_progress">in_progress</span></div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-node" style="color: var(--accent-emerald);">[implementer ➔ reviewer]</div>
+        <div class="pipeline-arrow">➔</div>
+        <div class="pipeline-node"><span class="pill pill-done">done</span></div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-title">✋ La Puerta de Aprobación Humana es Sagrada</div>
+        Cuando <code>spec_author</code> finaliza la redacción del spec, la feature pasa a <code>spec_ready</code> y el sistema <strong>SE DETIENE OBLIGATORIAMENTE</strong>. 
+        El humano abre los tres archivos en su editor (VS Code, Cursor, terminal):
+        <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+          <li>Lee <code>specs/&lt;name&gt;/requirements.md</code> para validar el alcance funcional.</li>
+          <li>Lee <code>specs/&lt;name&gt;/design.md</code> para certificar las decisiones técnicas.</li>
+          <li>Lee <code>specs/&lt;name&gt;/tasks.md</code> para revisar el plan de tareas paso a paso.</li>
+        </ol>
+        Solo cuando el humano responde en el chat <strong>"aprobado"</strong>, el <code>leader</code> transiciona el estado a <code>in_progress</code> e invoca al <code>implementer</code>.
+      </div>
+    </section>
+
+    <!-- Section 4: EARS -->
+    <section id="ears-spec">
+      <h2><span>📐</span> 4. EARS Notation & La Triada de Especificación</h2>
+      <p>
+        Cada feature con <code>"sdd": true</code> cuenta con una carpeta exclusiva en <code>specs/&lt;nombre-feature&gt;/</code> 
+        con tres documentos complementarios:
+      </p>
+
+      <h3>1. requirements.md — Sintaxis EARS Estricta</h3>
+      <p>
+        Para evitar prosa ambigua, todos los requerimientos funcionales usan los 5 patrones canónicos de <strong>EARS</strong> (Easy Approach to Requirements Syntax):
+      </p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Patrón EARS</th>
+              <th>Estructura / Plantilla</th>
+              <th>Ejemplo en Notes CLI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Ubicuo</strong></td>
+              <td><code>El sistema DEBE &lt;acción&gt;.</code></td>
+              <td>El sistema DEBE almacenar las notas en formato JSON atómico.</td>
+            </tr>
+            <tr>
+              <td><strong>Evento</strong></td>
+              <td><code>CUANDO &lt;disparador&gt;, el sistema DEBE &lt;acción&gt;.</code></td>
+              <td>CUANDO el usuario ejecuta <code>recent</code>, el sistema DEBE listar las 5 notas más recientes.</td>
+            </tr>
+            <tr>
+              <td><strong>Estado</strong></td>
+              <td><code>MIENTRAS &lt;estado&gt;, el sistema DEBE &lt;acción&gt;.</code></td>
+              <td>MIENTRAS no existan notas en el archivo, el comando <code>list</code> DEBE salir con exit code 0 y stdout vacío.</td>
+            </tr>
+            <tr>
+              <td><strong>Opcional</strong></td>
+              <td><code>DONDE &lt;feature opcional&gt;, el sistema DEBE &lt;acción&gt;.</code></td>
+              <td>DONDE se provee <code>--limit N</code>, el sistema DEBE listar como máximo N notas.</td>
+            </tr>
+            <tr>
+              <td><strong>No deseado</strong></td>
+              <td><code>SI &lt;evento de error&gt; ENTONCES el sistema DEBE &lt;acción&gt;.</code></td>
+              <td>SI el ID no existe ENTONCES el sistema DEBE imprimir un mensaje en <code>stderr</code> y salir con código != 0.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-2" style="margin-top: 1rem;">
+        <div class="card">
+          <div class="card-title">2. design.md — Decisiones Técnicas</div>
+          <div class="card-body">
+            Especifica qué archivos de <code>src/</code> se modificarán, las firmas de función exactas, nuevos argumentos de argparse, tipos de excepción a capturar y <strong>la alternativa técnica descartada</strong> justificando por qué no se eligió.
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">3. tasks.md — Checklist de Implementación</div>
+          <div class="card-body">
+            Lista ordenada de pasos discretos <code>[ ] T1</code>, <code>[ ] T2</code>... Cada task indica explícitamente qué requerimientos <code>R&lt;n&gt;</code> cubre. El implementer las va marcando con <code>[x]</code> conforme las completa con sus respectivos tests.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: State -->
+    <section id="state">
+      <h2><span>💾</span> 5. Gestión de Estado y Memoria Viva</h2>
+      <p>
+        El repositorio gestiona el estado a través de archivos estructurados:
+      </p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Archivo</th>
+              <th>Propósito</th>
+              <th>Quién lo Modifica</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>feature_list.json</code></td>
+              <td>Registro de todas las features, criterios de aceptación, reglas de negocio y estado global.</td>
+              <td><code>leader</code> / <code>implementer</code></td>
+            </tr>
+            <tr>
+              <td><code>progress/current.md</code></td>
+              <td>Memoria viva de la sesión activa: qué feature se trabaja, plan en curso y bloqueos inmediatos.</td>
+              <td><code>leader</code> / <code>implementer</code></td>
+            </tr>
+            <tr>
+              <td><code>progress/history.md</code></td>
+              <td>Bitácora histórica inmutable (append-only) que resume cada sesión terminada.</td>
+              <td><code>leader</code> al cerrar sesión</td>
+            </tr>
+            <tr>
+              <td><code>progress/impl_&lt;name&gt;.md</code></td>
+              <td>Informe del implementador: lista de archivos tocados, mapa de trazabilidad <code>R&lt;n&gt; → test</code> y output de tests.</td>
+              <td><code>implementer</code></td>
+            </tr>
+            <tr>
+              <td><code>progress/review_&lt;name&gt;.md</code></td>
+              <td>Informe de auditoría con veredicto (<code>APPROVED</code> o <code>CHANGES_REQUESTED</code>) y checklist de checkpoints.</td>
+              <td><code>reviewer</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 6: Checkpoints -->
+    <section id="checkpoints">
+      <h2><span>🎯</span> 6. CHECKPOINTS.md — Criterios de Evaluación</h2>
+      <p>
+        <em>"En sistemas multi-agente no se evalúa el camino, se evalúa el destino."</em> 
+        Cualquier juez (humano o IA) evalúa la salud del repo con los 6 Checkpoints objetivos:
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">C1 — Arnés Completo</div>
+          <div class="card-body">Existen los 4 archivos base, los 3 docs arquitectónicos y <code>./init.sh</code> termina con exit code 0.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">C2 — Estado Coherente</div>
+          <div class="card-body">Como máximo 1 feature en <code>in_progress</code> en <code>feature_list.json</code>. Toda feature <code>done</code> tiene tests verdes.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">C3 — Respeto Arquitectónico</div>
+          <div class="card-body"><code>src/</code> solo contiene módulos previstos. Cero dependencias externas. Sin prints de debug ni TODOs huérfanos.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">C4 — Verificación Real</div>
+          <div class="card-body">Tests usan <code>tempfile.TemporaryDirectory()</code> (cero mocks falsos de fs). 100% de la suite verde.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">C5 — Sesión Bien Cerrada</div>
+          <div class="card-body">Cero archivos basura sin trackear. Entrada añadida en <code>progress/history.md</code>. <code>current.md</code> limpio.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">C6 — SDD Estricto</div>
+          <div class="card-body">Feature tiene su carpeta <code>specs/&lt;name&gt;/</code> con los 3 archivos. EARS verificado. Trazabilidad 100%.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Architecture -->
+    <section id="architecture">
+      <h2><span>🏛️</span> 7. Arquitectura del Código Python (3 Capas)</h2>
+      <p>
+        El código de la aplicación se divide estricta y únicamente en <strong>tres capas</strong>:
+      </p>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>Flujo de Datos — src/</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        </div>
+        <pre><code>usuario  ───&gt;  src/cli.py (argparse + presentación en stdout/stderr)
+                     │
+                     ├──&gt; construye Note con src/notes.py (@dataclass frozen=True)
+                     │
+                     └──&gt; src/storage.py (load / save atómico con tempfile + replace)
+                              │
+                              └──&gt; .notes.json (en CWD)</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Reglas de Oro del Código Python</div>
+        <ul style="margin-left: 1.25rem; margin-top: 0.35rem;">
+          <li><strong>Python 3.9+ estándar:</strong> Sin librerías de terceros en <code>requirements.txt</code> (stdlib pura).</li>
+          <li><strong>Inmutabilidad:</strong> La entidad <code>Note</code> es un <code>@dataclass(frozen=True)</code>. Modificar significa generar una nueva instancia.</li>
+          <li><strong>Escritura atómica:</strong> <code>save()</code> siempre escribe primero en un archivo temporal con <code>tempfile.NamedTemporaryFile</code> y luego hace <code>os.replace()</code> para evitar archivos corruptos ante fallos imprevistos.</li>
+          <li><strong>Excepciones del dominio:</strong> <code>NoteError</code> y <code>NoteNotFound</code> en <code>notes.py</code>. El CLI las atrapa, imprime a <code>stderr</code> y sale con código 1.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Section 8: init.sh -->
+    <section id="init-sh">
+      <h2><span>🛡️</span> 8. init.sh & Verificación Automatizada</h2>
+      <p>
+        El script <code>./init.sh</code> es el guardián de la integridad del repositorio. 
+        Se ejecuta al iniciar cualquier sesión y antes de declarar cualquier feature terminada:
+      </p>
+
+      <div class="code-container">
+        <div class="code-header">
+          <span>Terminal — Ejecutar verificación</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        </div>
+        <pre><code>./init.sh</code></pre>
+      </div>
+
+      <h3>Las 5 Fases de init.sh</h3>
+      <ol style="margin-left: 1.5rem; margin-bottom: 1.25rem;">
+        <li><strong>Entorno:</strong> Verifica presencia de <code>python3</code> y versión compatible (&gt;= 3.9).</li>
+        <li><strong>Archivos base:</strong> Comprueba la existencia de los 4 archivos de gestión y los 3 de documentación.</li>
+        <li><strong>Consistencia del estado:</strong> Valida la sintaxis JSON de <code>feature_list.json</code> y verifica que toda feature con <code>"sdd": true</code> no-pending tenga su carpeta de specs.</li>
+        <li><strong>Suite de tests:</strong> Ejecuta <code>python3 -m unittest discover -s tests -v</code> (actualmente 27 tests).</li>
+        <li><strong>Resumen:</strong> Emite código de salida 0 si todo está [OK] o 1 si existe algún fallo.</li>
+      </ol>
+    </section>
+
+    <!-- Section 9: Tutorial -->
+    <section id="tutorial">
+      <h2><span>🚀</span> 9. Tutorial Práctico: Implementando una Feature con Claude Code</h2>
+      <p>
+        Aprende a trabajar como un líder de ingeniería interactuando con Claude Code en este arnés:
+      </p>
+
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-title">Paso 1: Verificar el Entorno</div>
+        <div class="card-body">
+          Ejecuta <code>./init.sh</code> en la raíz. Si termina en verde, continúa.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-title">Paso 2: Abrir Claude Code</div>
+        <div class="card-body">
+          Lanza Claude Code en la terminal de la raíz del repo:
+          <div class="code-container">
+            <div class="code-header"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+            <pre><code>claude</code></pre>
+          </div>
+          Pídele al modelo: <code>«implementa la siguiente feature pendiente»</code>.
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-title">Paso 3: Fase de Especificación & Puerta Humana</div>
+        <div class="card-body">
+          Claude (actuando como <code>leader</code>) invocará al subagente <code>spec_author</code>. 
+          Este creará por ejemplo <code>specs/cli_count/</code> con sus 3 archivos y marcará el status como <code>spec_ready</code>.
+          Claude se detendrá y te dirá:
+          <blockquote style="margin: 0.5rem 0; padding-left: 1rem; border-left: 3px solid var(--accent-purple); color: var(--text-heading);">
+            "Spec listo en specs/cli_count/. Revísalo y di 'aprobado' para continuar con la implementación."
+          </blockquote>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.25rem;">
+        <div class="card-title">Paso 4: Tu Aprobación Humana</div>
+        <div class="card-body">
+          Abre <code>specs/cli_count/requirements.md</code> y <code>design.md</code>. Si estás de acuerdo, escribe en el chat:
+          <div class="code-container">
+            <div class="code-header"><span>Chat Prompt</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+            <pre><code>aprobado</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Paso 5: Implementación, Review y Cierre</div>
+        <div class="card-body">
+          El <code>leader</code> transiciona a <code>in_progress</code>, lanza al <code>implementer</code> (marca las tasks <code>[x]</code> y añade tests en <code>tests/test_cli.py</code>), 
+          y luego al <code>reviewer</code> (audita trazabilidad en <code>progress/review_cli_count.md</code>). 
+          Al aprobarse, se marca <code>done</code> en <code>feature_list.json</code> y el resumen pasa a <code>progress/history.md</code>.
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 10: Features List -->
+    <section id="features-list">
+      <h2><span>📋</span> 10. Catálogo y Estado de Features (11 Features)</h2>
+      <p>
+        El registro completo de alcance definido en <code>feature_list.json</code>:
+      </p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre de la Feature</th>
+              <th>Descripción</th>
+              <th>SDD</th>
+              <th>Estado Actual</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1</strong></td>
+              <td><code>storage_layer</code></td>
+              <td>Persistencia JSON atómica con tempfile y rename seguro.</td>
+              <td>—</td>
+              <td><span class="pill pill-done">done</span></td>
+            </tr>
+            <tr>
+              <td><strong>2</strong></td>
+              <td><code>note_model</code></td>
+              <td>Dataclass <code>Note</code> inmutable con IDs autoincrementales y fechas ISO 8601.</td>
+              <td>—</td>
+              <td><span class="pill pill-done">done</span></td>
+            </tr>
+            <tr>
+              <td><strong>3</strong></td>
+              <td><code>cli_add_list</code></td>
+              <td>Subcomandos CLI <code>add</code> (añadir nota) y <code>list</code> (listar notas).</td>
+              <td>—</td>
+              <td><span class="pill pill-done">done</span></td>
+            </tr>
+            <tr>
+              <td><strong>4</strong></td>
+              <td><code>cli_show_delete</code></td>
+              <td>Subcomandos CLI <code>show &lt;id&gt;</code> y <code>delete &lt;id&gt;</code> con manejo de <code>NoteNotFound</code>.</td>
+              <td>—</td>
+              <td><span class="pill pill-done">done</span></td>
+            </tr>
+            <tr>
+              <td><strong>5</strong></td>
+              <td><code>cli_search</code></td>
+              <td>Búsqueda case-insensitive por substring en título o cuerpo.</td>
+              <td>—</td>
+              <td><span class="pill pill-done">done</span></td>
+            </tr>
+            <tr>
+              <td><strong>6</strong></td>
+              <td><code>cli_edit</code></td>
+              <td>Modificación de título y/o cuerpo de notas existentes por ID.</td>
+              <td>—</td>
+              <td><span class="pill pill-done">done</span></td>
+            </tr>
+            <tr>
+              <td><strong>7</strong></td>
+              <td><code>cli_recent</code></td>
+              <td>Listado de las N notas más recientes ordenadas por fecha descendente.</td>
+              <td><code>true</code></td>
+              <td><span class="pill pill-done">done</span></td>
+            </tr>
+            <tr style="background: rgba(251, 191, 36, 0.05);">
+              <td><strong>8</strong></td>
+              <td><code>cli_count</code></td>
+              <td>Comando para mostrar el número total de notas almacenadas.</td>
+              <td><code>true</code></td>
+              <td><span class="pill pill-pending">pending</span></td>
+            </tr>
+            <tr>
+              <td><strong>9</strong></td>
+              <td><code>cli_export</code></td>
+              <td>Exportación de todas las notas a un archivo Markdown estructurado.</td>
+              <td><code>true</code></td>
+              <td><span class="pill pill-pending">pending</span></td>
+            </tr>
+            <tr>
+              <td><strong>10</strong></td>
+              <td><code>cli_stats</code></td>
+              <td>Estadísticas agregadas: total, fecha más antigua/reciente y longitud media.</td>
+              <td><code>true</code></td>
+              <td><span class="pill pill-pending">pending</span></td>
+            </tr>
+            <tr>
+              <td><strong>11</strong></td>
+              <td><code>cli_clear</code></td>
+              <td>Comando destructivo para vaciar todas las notas con confirmación vía flag <code>--yes</code>.</td>
+              <td><code>true</code></td>
+              <td><span class="pill pill-pending">pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Copy code snippet helper
+    function copyCode(btn) {
+      const container = btn.closest('.code-container');
+      const code = container.querySelector('pre code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = '¡Copiado!';
+        btn.style.borderColor = 'var(--accent-emerald)';
+        btn.style.color = 'var(--accent-emerald)';
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        }, 2000);
+      });
+    }
+
+    // Theme toggle
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('harness_sdd_theme', next);
+      document.getElementById('themeIcon').innerText = next === 'light' ? '🌙' : '☀️';
+    }
+
+    // Initialize theme from storage
+    const savedTheme = localStorage.getItem('harness_sdd_theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      document.getElementById('themeIcon').innerText = savedTheme === 'light' ? '🌙' : '☀️';
+    }
+
+    // Live search filter
+    function filterContent() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const sections = document.querySelectorAll('section');
+      sections.forEach(sec => {
+        const text = sec.innerText.toLowerCase();
+        if (text.includes(query) || query === '') {
+          sec.style.display = 'block';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+    }
+
+    // Active nav tracking
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section');
+      const navLinks = document.querySelectorAll('.nav-link');
+      let current = '';
+      sections.forEach(sec => {
+        const top = sec.offsetTop;
+        if (pageYOffset >= top - 150) {
+          current = sec.getAttribute('id');
+        }
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
